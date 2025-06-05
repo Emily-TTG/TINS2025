@@ -79,40 +79,44 @@ static void pdn_local_render_tilemap(ecs_iter_t* it) {
 		auto tileset = &tilemap->tilemap.tileset;
 		int dimension = tileset->dimension;
 
-		for(int y = 0; y < tilemap->tilemap.height; ++y) {
-			for(int x = 0; x < tilemap->tilemap.width; ++x) {
-				int global_id =
-						tilemap->tilemap.data[y * tilemap->tilemap.width + x];
+		for(int layer = 0; layer < tilemap->tilemap.layers; ++layer) {
+			int* layer_buffer = tilemap->tilemap.data[layer];
 
-				bool horizontal = global_id & (1 << 31);
-				bool vertical = global_id & (1 << 30);
+			for(int y = 0; y < tilemap->tilemap.height; ++y) {
+				for(int x = 0; x < tilemap->tilemap.width; ++x) {
+					int index = y * tilemap->tilemap.width + x;
+					int global_id = layer_buffer[index];
 
-				int id = (global_id & 0xFFFFFFF) - 1;
-				int tile_column = id % tileset->width;
-				int tile_row = id / tileset->width;
+					bool horizontal = global_id & (1 << 31);
+					bool vertical = global_id & (1 << 30);
 
-				float sx = (float) (tile_column * dimension);
-				float sy = (float) (tile_row * dimension);
-				float sw = (float) dimension;
-				float sh = (float) dimension;
+					int id = (global_id & 0xFFFFFFF) - 1;
+					int tile_column = id % tileset->width;
+					int tile_row = id / tileset->width;
 
-				float dx = (float) (x * dimension);
-				float dy = (float) (y * dimension);
+					float sx = (float) (tile_column * dimension);
+					float sy = (float) (tile_row * dimension);
+					float sw = (float) dimension;
+					float sh = (float) dimension;
 
-				int flags = 0;
-				if(horizontal) {
-					flags |= ALLEGRO_FLIP_HORIZONTAL;
+					float dx = (float) (x * dimension);
+					float dy = (float) (y * dimension);
+
+					int flags = 0;
+					if(horizontal) {
+						flags |= ALLEGRO_FLIP_HORIZONTAL;
+					}
+					else if(vertical) {
+						flags |= ALLEGRO_FLIP_VERTICAL;
+					}
+
+					al_draw_tinted_scaled_rotated_bitmap_region(
+							tileset->atlas, sx, sy, sw, sh,
+							al_map_rgb(255, 255, 255),
+							0.0f, 0.0f,
+							transform->x + dx, transform->y + dy,
+							1.0f, 1.0f, 0.0f, flags);
 				}
-				else if(vertical) {
-					flags |= ALLEGRO_FLIP_VERTICAL;
-				}
-
-				al_draw_tinted_scaled_rotated_bitmap_region(
-						tileset->atlas, sx, sy, sw, sh,
-						al_map_rgb(255, 255, 255),
-						sw / 2.0f, sh / 2.0f,
-						transform->x + dx, transform->y + dy,
-						1.0f, 1.0f, 0.0f, flags);
 			}
 		}
 	}
