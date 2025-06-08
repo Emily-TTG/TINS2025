@@ -9,4 +9,8 @@ res/tile/*.lua
 
 *.log
 
+results.html
+
 *.tiled-session
+
+*.aup3-*
