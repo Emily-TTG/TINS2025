@@ -8,7 +8,7 @@ float gm_light_attenuate(struct gm_light* light, struct gm_camera* camera, float
 	float linear = (light->linear * camera->zoom) / (dxl + dyl);
 	float quadratic = (light->quadratic * camera->zoom) / sqrtf(dxl + dxl + dyl + dyl);
 
-	float dl = linear + quadratic;
+	float dl = GM_MIN(linear + quadratic, 1.0f);
 	return roundf(dl * light->clamp) / light->clamp;
 }
 

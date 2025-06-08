@@ -72,13 +72,23 @@ void gm_render_tilemap(ecs_iter_t* it) {
 
 					float dl = gm_light_attenuate(light, camera, dx, dy);
 					if(dl > camera->light_floor) {
+						ALLEGRO_COLOR attenuated = gm_color_multiply(light->color, dl);
+						// NOTE: Mysterious render bugs -- I am out of time and tether to fix these "properly".
+#ifdef _WIN32
+						ALLEGRO_COLOR pulse = {};
+#else
+						ALLEGRO_COLOR pulse = gm_color_multiply(gm_color_random(), camera->color_pulse);
+#endif
+						ALLEGRO_COLOR combined = gm_color_add_color(attenuated, pulse);
 						al_draw_tinted_scaled_rotated_bitmap_region(
-								tileset->atlas, sx, sy, sw, sh,
-								gm_color_add_color(
-										gm_color_multiply(light->color, dl),
-										gm_color_multiply(
-												gm_color_random(),
-												camera->color_pulse)),
+								tileset->atlas,
+#ifdef _WIN32
+								sx - 1,
+#else
+								sx,
+#endif
+								sy, sw, sh,
+								combined,
 								cx, cy, dx, dy, zoom + 0.01f, zoom + 0.01f,
 								0.0f, flags);
 					}
@@ -90,7 +100,7 @@ void gm_render_tilemap(ecs_iter_t* it) {
 
 void gm_render_sprite(ecs_iter_t* it) {
 	auto transforms = ecs_field(it, pdn_component_transform_t, 0);
-	auto sprites = ecs_field(it, pdn_component_sprite_t, 1);
+	auto sprites = ecs_field(it, gm_component_sprite_t, 1);
 	auto aux_s = ecs_field(it, gm_component_sprite_aux_t, 2);
 
 	auto camera = &gm_global_state.camera;
@@ -129,15 +139,23 @@ void gm_render_sprite(ecs_iter_t* it) {
 
 		float dl = gm_light_attenuate(light, camera, dx, dy);
 		if(dl > camera->light_floor) {
+			ALLEGRO_COLOR attenuated = gm_color_multiply(light->color, dl);
+#ifdef _WIN32
+			ALLEGRO_COLOR pulse = {};
+#else
+			ALLEGRO_COLOR pulse = gm_color_multiply(gm_color_random(), camera->color_pulse);
+#endif
+			ALLEGRO_COLOR combined = gm_color_add_color(attenuated, pulse);
+
 			al_draw_tinted_scaled_rotated_bitmap_region(
-					tileset.atlas, sx, sy, sw, sh,
-					gm_color_sub_color(
-							gm_color_add_color(
-								gm_color_multiply(light->color, dl),
-								gm_color_multiply(
-										gm_color_random(),
-										camera->color_pulse)),
-							aux->invtint),
+					tileset.atlas,
+#ifdef _WIN32
+					sx - 1,
+#else
+					sx,
+#endif
+					sy, sw, sh,
+					gm_color_sub_color(combined, aux->invtint),
 					cx, cy, dx, dy, zoom + aux->ex_scale, zoom + aux->ex_scale, 0.0f, aux->flip ? ALLEGRO_FLIP_HORIZONTAL : 0);
 		}
 	}

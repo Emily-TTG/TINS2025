@@ -4,7 +4,15 @@
 ### Build & Run
 
 The game is built on top of [sPDNgin](https://github.com/Emily-TTG/sPDNgin)
-which the build expects to be present at `vendor/sPDNgin`.
+which the build expects to be present at `vendor/sPDNgin`. This is a
+hodge-podge of basic initialization code and a runtime loop made ahead of the
+jam. It also provides some build infrastructure for dependencies used by the
+project (see [final notes](#final-notes) for full 1st-order dependency list).
+
+On Windows LuaJIT can be a bit finicky depending on toolchain - so you may
+want to pre-build it in-tree at `vendor/sPDNgin/vendor/luajit`. Visual C
+toolsets probably won't work without at least `clang-cl` - Windows was tested
+with MinGW.
 
 After that it's a normal cmake build process:
 ```
@@ -111,16 +119,27 @@ Omitting Golden Ratio in favour of doubling down on layers.
 ### Final Notes
 
 Created with the following tools:
-
 - CLion
 - FLStudio
 - Tiled
 - GIMP
 - Audacity
-- JSFXR (https://sfxr.me)
+- [JSFXR](https://sfxr.me)
+
+And the following 1st-order dependencies:
+- [Allegro](https://liballeg.org/)
+- [LuaJIT](https://luajit.org/)
+- [Nuklear](https://github.com/Immediate-Mode-UI/Nuklear)
+- [Flecs](https://www.flecs.dev/flecs/)
+- [STB](https://github.com/nothings/stb/)
 
 A couple of "wish I could have"s from the time constraint:
 
+- The last minute Windows portability checks had some very strange
+breakages I was not up to fixing before the deadline so there's a few
+dirty `#ifdef _WIN32` fixes. Given the chance I'd probably put more
+focus into parity - possibly having my laptop loaded up on the side
+or have a build server pre-setup to do hands-off pseudo-CI.
 - Bespoke music tracks for the miniboss and boss
 - Multiple/longer music tracks for the main area
 - A main menu and in-engine results screen

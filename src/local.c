@@ -1,6 +1,7 @@
 ECS_COMPONENT_DECLARE(gm_component_enemy_t);
 ECS_COMPONENT_DECLARE(gm_component_physics_t);
 ECS_COMPONENT_DECLARE(gm_component_projectile_t);
+ECS_COMPONENT_DECLARE(gm_component_sprite_t);
 ECS_COMPONENT_DECLARE(gm_component_sprite_aux_t);
 ECS_COMPONENT_DECLARE(gm_component_pickup_t);
 
@@ -145,6 +146,7 @@ enum pdn_result pdn_local_start(struct pdn_context* context) {
 	ECS_COMPONENT_DEFINE(context->scene->world, gm_component_physics_t);
 	ECS_COMPONENT_DEFINE(context->scene->world, gm_component_projectile_t);
 	ECS_COMPONENT_DEFINE(context->scene->world, gm_component_sprite_aux_t);
+	ECS_COMPONENT_DEFINE(context->scene->world, gm_component_sprite_t);
 	ECS_COMPONENT_DEFINE(context->scene->world, gm_component_pickup_t);
 
 	ECS_SYSTEM_DEFINE(
@@ -153,7 +155,7 @@ enum pdn_result pdn_local_start(struct pdn_context* context) {
 
 	ECS_SYSTEM_DEFINE(
 			world, gm_render_sprite, EcsOnUpdate,
-			pdn_component_transform_t, pdn_component_sprite_t, gm_component_sprite_aux_t);
+			pdn_component_transform_t, gm_component_sprite_t, gm_component_sprite_aux_t);
 
 	ECS_SYSTEM_DEFINE(
 			world, gm_update_physics, EcsOnUpdate,
@@ -165,7 +167,7 @@ enum pdn_result pdn_local_start(struct pdn_context* context) {
 
 	ECS_SYSTEM_DEFINE(
 			world, gm_update_projectile, EcsOnUpdate,
-			pdn_component_transform_t, gm_component_projectile_t, pdn_component_sprite_t, gm_component_sprite_aux_t, gm_component_physics_t);
+			pdn_component_transform_t, gm_component_projectile_t, gm_component_sprite_t, gm_component_sprite_aux_t, gm_component_physics_t);
 
 	ECS_SYSTEM_DEFINE(
 			world, gm_update_pickup, EcsOnUpdate,

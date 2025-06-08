@@ -24,6 +24,9 @@
 #include <time.h>
 #include <math.h>
 
+#include <sys/time.h>
+#include <unistd.h>
+
 struct gm_camera {
 	float x, y;
 	float zoom;
@@ -41,6 +44,10 @@ struct gm_light {
 	float linear, quadratic;
 	float clamp;
 };
+
+typedef struct gm_component_sprite {
+	int tid;
+} gm_component_sprite_t;
 
 #define GM_WEAPON_BASE (24)
 enum gm_weapon {
@@ -163,6 +170,7 @@ extern ECS_COMPONENT_DECLARE(gm_component_enemy_t);
 extern ECS_COMPONENT_DECLARE(gm_component_physics_t);
 extern ECS_COMPONENT_DECLARE(gm_component_projectile_t);
 extern ECS_COMPONENT_DECLARE(gm_component_sprite_aux_t);
+extern ECS_COMPONENT_DECLARE(gm_component_sprite_t);
 extern ECS_COMPONENT_DECLARE(gm_component_pickup_t);
 
 struct gm_oven {

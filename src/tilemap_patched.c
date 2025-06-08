@@ -151,7 +151,7 @@ enum pdn_result pdn_tilemap_script_table_handler_patched(
 										});
 
 								ecs_set(
-										world, test, pdn_component_sprite_t,
+										world, test, gm_component_sprite_t,
 										{
 											.tid = pdn_script_table_get_int(script, -1, "gid")
 										});

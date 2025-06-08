@@ -137,7 +137,7 @@ struct gm_projectile_info gm_global_projectile_info[GM_PROJECTILE_COUNT] = {
 				.name = "Breadcrumb",
 				.reload = 2.0f,
 				.burst = 3,
-				.burst_interval = 0.5f,
+				.burst_interval = 1.0f,
 				.damage = 8.0f,
 				.force = 2.0f,
 				.tid = GM_PROJECTILE_BASE + 3,
@@ -227,7 +227,7 @@ static void gm_spawn_projectile(float vx, float vy, float x, float y, enum gm_pr
 
 	ecs_entity_t test2 = ecs_entity(gm_global_state.world, {});
 	ecs_set(gm_global_state.world, test2, pdn_component_transform_t, { x, y });
-	ecs_set(gm_global_state.world, test2, pdn_component_sprite_t, { .tid = projectile->tid });
+	ecs_set(gm_global_state.world, test2, gm_component_sprite_t, { .tid = projectile->tid });
 	ecs_set(gm_global_state.world, test2, gm_component_sprite_aux_t, { .flip = vx < 0.0f });
 	ecs_set(
 			gm_global_state.world, test2, gm_component_physics_t,
@@ -419,7 +419,7 @@ static void gm_delete_all(ecs_id_t component) {
 void gm_update_projectile(ecs_iter_t* it) {
 	auto transforms = ecs_field(it, pdn_component_transform_t, 0);
 	auto projectiles = ecs_field(it, gm_component_projectile_t, 1);
-	auto sprites = ecs_field(it, pdn_component_sprite_t, 2);
+	auto sprites = ecs_field(it, gm_component_sprite_t, 2);
 	auto aux_s = ecs_field(it, gm_component_sprite_aux_t, 3);
 	auto physics_s = ecs_field(it, gm_component_physics_t, 4);
 
@@ -656,7 +656,7 @@ static void gm_spawn_minion(enum gm_enemy_type type) {
 				.y = oven->y
 			});
 
-	ecs_set(world, test, pdn_component_sprite_t, { .tid = gm_global_enemy_info[type].tid });
+	ecs_set(world, test, gm_component_sprite_t, { .tid = gm_global_enemy_info[type].tid });
 
 	ecs_set(world, test, gm_component_sprite_aux_t, {});
 }
@@ -799,6 +799,17 @@ static void gm_do_oven() {
 
 enum pdn_result pdn_local_update(struct pdn_context* context, double delta) {
 	auto ui = context->ui;
+
+	static struct timeval t = {};
+	static bool first_ts = true;
+	auto oldt = t;
+	gettimeofday(&t, 0);
+	if(!first_ts) {
+		int64_t sdiff = t.tv_sec - oldt.tv_sec;
+		int64_t udiff = (t.tv_usec + (sdiff * 1e6)) - oldt.tv_usec;
+		usleep(GM_MAX(16666LL - udiff, 0LL));
+	}
+	first_ts = false;
 
 	al_set_target_backbuffer(context->display->display);
 	al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -1133,8 +1144,8 @@ enum pdn_result pdn_local_update(struct pdn_context* context, double delta) {
 		int money_a = gm_global_state.money / 10;
 		int money_b = gm_global_state.money % 10;
 
-		int id_a = 180 + money_a;
-		int id_b = 180 + money_b;
+		int id_a = 181 + money_a;
+		int id_b = 181 + money_b;
 
 		gm_draw_money_tile(id_a, gm_global_state.width - (18 * 3 * gm_global_state.camera.zoom), 0.0f);
 		gm_draw_money_tile(id_b, gm_global_state.width - (18 * 2 * gm_global_state.camera.zoom), 0.0f);
@@ -1150,7 +1161,7 @@ enum pdn_result pdn_local_update(struct pdn_context* context, double delta) {
 				gm_global_state.height - (20 * gm_global_state.camera.zoom),
 				gm_global_state.camera.zoom, gm_global_state.camera.zoom, 0, 0);
 
-		int id_c = 180 + gm_global_state.keys;
+		int id_c = 181 + gm_global_state.keys;
 
 		float cofy = 18.0f;
 		gm_draw_money_tile(id_c, gm_global_state.width - (18 * 2 * gm_global_state.camera.zoom), cofy * gm_global_state.camera.zoom);
